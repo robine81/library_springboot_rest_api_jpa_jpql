@@ -1,24 +1,19 @@
-package com.springboot.library_rest_api_jpa_jpql.model;
+package com.springboot.library_rest_api_jpa_jpql.model.dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-import java.util.List;
-
-@Entity
-@Table(name= "users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class UserReqDTO {
     private Long userId;
+    @NotBlank(message= "Name must be specified")
     private String userName;
+    @NotBlank(message = "Email is mandatory")
+    @Email(message = "Invalid format")
     private String email;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Loan> loans;
+    public UserReqDTO() {}
 
-    public User() {}
-
-    public User(Long userId, String userName, String email) {
+    public UserReqDTO(Long userId, String userName, String email) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
@@ -50,7 +45,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "UserReqDTO{" +
                 "userId=" + userId +
                 ", userName='" + userName + '\'' +
                 ", email='" + email + '\'' +

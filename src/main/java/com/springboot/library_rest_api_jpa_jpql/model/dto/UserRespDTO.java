@@ -1,29 +1,23 @@
-package com.springboot.library_rest_api_jpa_jpql.model;
+package com.springboot.library_rest_api_jpa_jpql.model.dto;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import java.util.List;
+@JsonPropertyOrder({"id", "name", "email"})
+public class UserRespDTO {
+    Long userId;
+    String userName;
+    String email;
 
-@Entity
-@Table(name= "users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
-    private String userName;
-    private String email;
+    public UserRespDTO() {}
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Loan> loans;
-
-    public User() {}
-
-    public User(Long userId, String userName, String email) {
+    public UserRespDTO(Long userId, String userName, String email) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
     }
 
+    @JsonProperty("id")
     public Long getUserId() {
         return userId;
     }
@@ -32,6 +26,7 @@ public class User {
         this.userId = userId;
     }
 
+    @JsonProperty("name")
     public String getUserName() {
         return userName;
     }
@@ -50,7 +45,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "UserRespDTO{" +
                 "userId=" + userId +
                 ", userName='" + userName + '\'' +
                 ", email='" + email + '\'' +

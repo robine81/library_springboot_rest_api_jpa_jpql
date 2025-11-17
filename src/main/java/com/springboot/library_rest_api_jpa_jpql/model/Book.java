@@ -10,16 +10,21 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookId;
-    private String name;
+    private String title;
 
-    @OneToMany(mappedBy = "loans", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Loan> loans;
 
     public Book() {}
 
-    public Book(Long bookId, String name, List<Loan> loans) {
+    public Book(Long bookId, String title) {
         this.bookId = bookId;
-        this.name = name;
+        this.title = title;
+    }
+
+    public Book(Long bookId, String title, List<Loan> loans) {
+        this.bookId = bookId;
+        this.title = title;
         this.loans = loans;
     }
 
@@ -31,12 +36,12 @@ public class Book {
         this.bookId = bookId;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public List<Loan> getLoans() {
@@ -51,7 +56,7 @@ public class Book {
     public String toString() {
         return "Book{" +
                 "bookId=" + bookId +
-                ", name='" + name + '\'' +
+                ", name='" + title + '\'' +
                 ", loans=" + loans +
                 '}';
     }
