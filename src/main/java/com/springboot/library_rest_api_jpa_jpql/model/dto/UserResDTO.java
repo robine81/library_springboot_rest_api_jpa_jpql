@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({"id", "name", "email"})
-public class UserRespDTO {
+public class UserResDTO {
     Long userId;
     String userName;
     String email;
 
-    public UserRespDTO() {}
+    public UserResDTO() {}
 
-    public UserRespDTO(Long userId, String userName, String email) {
+    public UserResDTO(Long userId, String userName, String email) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;

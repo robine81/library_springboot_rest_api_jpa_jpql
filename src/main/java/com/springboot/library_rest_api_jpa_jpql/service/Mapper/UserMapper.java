@@ -2,7 +2,7 @@ package com.springboot.library_rest_api_jpa_jpql.service.Mapper;
 
 import com.springboot.library_rest_api_jpa_jpql.model.User;
 import com.springboot.library_rest_api_jpa_jpql.model.dto.UserReqDTO;
-import com.springboot.library_rest_api_jpa_jpql.model.dto.UserRespDTO;
+import com.springboot.library_rest_api_jpa_jpql.model.dto.UserResDTO;
 
 public class UserMapper {
     public static User toEntity(UserReqDTO userReqDTO){
@@ -14,7 +14,7 @@ public class UserMapper {
         return user;
     }
 
-    public static UserRespDTO toResponseDTO(User user) {
-        return new UserRespDTO(user.getUserId(), user.getUserName(), user.getEmail());
+    public static UserResDTO toResponseDTO(User user) {
+        return new UserResDTO(user.getUserId(), user.getUserName(), user.getEmail());
     }
 }

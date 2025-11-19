@@ -2,7 +2,7 @@ package com.springboot.library_rest_api_jpa_jpql.service.Mapper;
 
 import com.springboot.library_rest_api_jpa_jpql.model.Book;
 import com.springboot.library_rest_api_jpa_jpql.model.dto.BookReqDTO;
-import com.springboot.library_rest_api_jpa_jpql.model.dto.BookRespDTO;
+import com.springboot.library_rest_api_jpa_jpql.model.dto.BookResDTO;
 
 public class BookMapper {
     public static Book toEntity(BookReqDTO bookReqDTO) {
@@ -13,7 +13,7 @@ public class BookMapper {
         return book;
     }
 
-    public static BookRespDTO toResponseDTO(Book book){
-        return new BookRespDTO(book.getBookId(), book.getTitle());
+    public static BookResDTO toResponseDTO(Book book){
+        return new BookResDTO(book.getBookId(), book.getTitle());
     }
 }

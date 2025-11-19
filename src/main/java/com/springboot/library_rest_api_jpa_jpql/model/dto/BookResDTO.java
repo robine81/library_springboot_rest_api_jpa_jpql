@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({"id", "title"})
-public class BookRespDTO {
+public class BookResDTO {
     Long bookId;
     String title;
 
-    public BookRespDTO() {}
+    public BookResDTO() {}
 
-    public BookRespDTO(Long bookId, String title) {
+    public BookResDTO(Long bookId, String title) {
         this.bookId = bookId;
         this.title = title;
     }
