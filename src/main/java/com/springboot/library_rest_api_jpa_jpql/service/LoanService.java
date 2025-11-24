@@ -12,6 +12,7 @@ import com.springboot.library_rest_api_jpa_jpql.repository.LoanRepoJpa;
 import com.springboot.library_rest_api_jpa_jpql.repository.UserRepoJpa;
 import com.springboot.library_rest_api_jpa_jpql.service.Mapper.LoanMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +31,16 @@ public class LoanService {
     @Autowired
     private BookRepoJpa bookRepo;
 
-    public List<LoanResDTO> getLoans() {
-        String currentUsername = getCurrentUsername();
+    public List<LoanResDTO> getAll() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        String currentUsername = authentication.getName();
 
+        if(!isAdmin)
+        {
+            throw new AccessDeniedException("Only admins can see all loans");
+        }
         if (isAdmin()) {
             return loanRepo.findAll().stream()
                     .map(LoanMapper::toResponseDTO)
@@ -59,34 +67,33 @@ public class LoanService {
     }
 
     public LoanResDTO borrowBook(Long bookId) {
-        String currentUsername = getCurrentUsername();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
         User user = userRepo.findByUserName(currentUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Book book = bookRepo.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found"));
 
-        // 3. (Valfritt) Kolla om boken redan är utlånad
         List<Loan> activeLoans = loanRepo.findByBook_BookIdAndReturnDateIsNull(bookId);
         if (!activeLoans.isEmpty()) {
             throw new BadRequestException("This book is already on loan");
         }
 
-        // 4. (Valfritt) Kolla om användaren redan lånat denna bok
         List<Loan> userActiveLoans = loanRepo.findByUser_UserIdAndBook_BookIdAndReturnDateIsNull(
                 user.getUserId(), bookId);
         if (!userActiveLoans.isEmpty()) {
             throw new BadRequestException("You have already borrowed this book");
         }
 
-        // 5. Skapa nytt lån
         Loan loan = new Loan();
         loan.setUser(user);
         loan.setBook(book);
         loan.setStartDate(LocalDate.now());
-        loan.setReturnDate(null);  // Inte returnerad än
+        loan.setReturnDate(null);
 
-        // 6. Spara och returnera
         Loan savedLoan = loanRepo.save(loan);
         return convertToResDTO(savedLoan);
     }

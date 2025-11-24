@@ -10,9 +10,12 @@ import java.time.LocalDate;
 public class Loan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "loan_id")
     private Long loanId;
 
+    @Column(name = "start_date")
     private LocalDate startDate;
+    @Column(name = "return_date")
     private LocalDate returnDate;
 
     @ManyToOne

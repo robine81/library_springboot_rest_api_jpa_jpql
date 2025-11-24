@@ -1,10 +1,12 @@
 package com.springboot.library_rest_api_jpa_jpql.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class BookReqDTO {
     private Long bookId;
     @NotBlank(message = "Title must be specified")
+    @Size(min = 1, max = 200, message = "Title but be between 2 and 200 characters")
     private String title;
 
     public BookReqDTO() {}

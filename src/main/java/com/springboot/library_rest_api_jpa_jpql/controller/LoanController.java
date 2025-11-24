@@ -10,9 +10,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/loans")
 public class LoanController {
-    LoanService service = new LoanService();
 
-    @PostMapping("/books/{bookId}")
+    private final LoanService service;
+
+    public LoanController(LoanService service) { this.service = service; }
+
+    // Hämta mina lån
+    // USER ser sina egna, ADMIN ser alla
+    @GetMapping
+    public ResponseEntity<List<LoanResDTO>> getAll() { return ResponseEntity.ok(service.getAll()); }
+
+    @PostMapping("/{bookId}")
     public ResponseEntity<LoanResDTO> borrowBook(@PathVariable Long bookId) {
         return ResponseEntity.ok(service.borrowBook(bookId));
     }
@@ -30,11 +38,4 @@ public class LoanController {
     public ResponseEntity<LoanResDTO> returnBook(@PathVariable Long loanId) {
         // Sätt returnDate till idag
     }*/
-
-    // Hämta mina lån
-    @GetMapping("/my-loans")
-    public ResponseEntity<List<LoanResDTO>> getMyLoans() {
-        // USER ser sina egna, ADMIN ser alla
-        return ResponseEntity.ok(service.getLoans());
-    }
 }

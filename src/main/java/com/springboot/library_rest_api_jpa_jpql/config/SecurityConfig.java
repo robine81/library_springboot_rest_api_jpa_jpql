@@ -23,9 +23,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/","/public/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasRole("USER")
                         .requestMatchers("/secret/**").authenticated()
+                        .requestMatchers("/api/**").permitAll()
+
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
 
@@ -42,7 +42,7 @@ public class SecurityConfig {
 
         UserDetails user = User
                 .withUsername("user")
-                .password(passwordEncoder().encode("password123"))
+                .password(passwordEncoder().encode("user123"))
                 .roles("USER")
                 .build();
 
