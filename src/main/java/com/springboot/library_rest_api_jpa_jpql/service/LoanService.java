@@ -37,10 +37,6 @@ public class LoanService {
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
         String currentUsername = authentication.getName();
 
-        if(!isAdmin)
-        {
-            throw new AccessDeniedException("Only admins can see all loans");
-        }
         if (isAdmin()) {
             return loanRepo.findAll().stream()
                     .map(LoanMapper::toResponseDTO)
@@ -66,12 +62,98 @@ public class LoanService {
         return convertToResDTO(loan);
     }
 
+    public List<LoanResDTO> getMyLoans() {
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User user = userRepo.findByUserName(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return loanRepo.findByUser_UserId(user.getUserId()).stream()
+                .map(LoanMapper::toResponseDTO)
+                .toList();
+    }
+
+    public List<LoanResDTO> getActiveLoans(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        if(!isAdmin) {
+            throw new AccessDeniedException("Only admins can see all active loans");
+        }
+
+        return loanRepo.findByReturnDateIsNull().stream()
+                .map(LoanMapper::toResponseDTO)
+                .toList();
+    }
+
+    public LoanResDTO returnBook(Long bookId){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        User user = userRepo.findByUserName(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Loan> activeLoans = loanRepo.findByBook_BookIdAndReturnDateIsNull(bookId);
+
+        if(activeLoans.isEmpty()) {
+            throw new BadRequestException("This book is not currently on loan");
+        }
+
+        Loan activeLoan = activeLoans.get(0);
+        if(!isAdmin && !activeLoan.getUser().getUserId().equals(user.getUserId())) {
+            throw new AccessDeniedException("You can only return your own books");
+        }
+
+        activeLoan.setReturnDate(LocalDate.now());
+        loanRepo.save(activeLoan);
+        return convertToResDTO(activeLoan);
+    }
+
     public LoanResDTO borrowBook(Long bookId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
         User user = userRepo.findByUserName(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Book book = bookRepo.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found"));
+
+        List<Loan> activeLoans = loanRepo.findByBook_BookIdAndReturnDateIsNull(bookId);
+        if (!activeLoans.isEmpty()) {
+            throw new BadRequestException("This book is already on loan");
+        }
+
+        List<Loan> userActiveLoans = loanRepo.findByUser_UserIdAndBook_BookIdAndReturnDateIsNull(
+                user.getUserId(), bookId);
+        if (!userActiveLoans.isEmpty()) {
+            throw new BadRequestException("You have already borrowed this book");
+        }
+
+        Loan loan = new Loan();
+        loan.setUser(user);
+        loan.setBook(book);
+        loan.setStartDate(LocalDate.now());
+        loan.setReturnDate(null);
+
+        Loan savedLoan = loanRepo.save(loan);
+        return convertToResDTO(savedLoan);
+    }
+
+    public LoanResDTO borrowBookForUser(Long userId, Long bookId){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        if(!isAdmin) {
+            throw new AccessDeniedException("Only admins can create loans for other users");
+        }
+
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Book book = bookRepo.findById(bookId)

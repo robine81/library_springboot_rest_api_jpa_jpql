@@ -1,7 +1,9 @@
 package com.springboot.library_rest_api_jpa_jpql.controller;
 
+import com.springboot.library_rest_api_jpa_jpql.model.dto.LoanReqBody;
 import com.springboot.library_rest_api_jpa_jpql.model.dto.LoanResDTO;
 import com.springboot.library_rest_api_jpa_jpql.service.LoanService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,27 +17,32 @@ public class LoanController {
 
     public LoanController(LoanService service) { this.service = service; }
 
-    // Hämta mina lån
-    // USER ser sina egna, ADMIN ser alla
     @GetMapping
     public ResponseEntity<List<LoanResDTO>> getAll() { return ResponseEntity.ok(service.getAll()); }
 
-    @PostMapping("/{bookId}")
+    @GetMapping("my-loans")
+    public ResponseEntity<List<LoanResDTO>> getMyLoans() {
+        return ResponseEntity.ok(service.getMyLoans());
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<LoanResDTO>> getActiveLoans() {
+        return ResponseEntity.ok(service.getActiveLoans());
+    }
+
+    @PostMapping("/{bookId}/borrow")
     public ResponseEntity<LoanResDTO> borrowBook(@PathVariable Long bookId) {
         return ResponseEntity.ok(service.borrowBook(bookId));
     }
 
-    // Admin kan skapa lån för någon annan
-    /*@PostMapping("/admin")
-    public ResponseEntity<LoanResDTO> createLoanAsAdmin(
-            @RequestParam Long userId,
-            @RequestParam Long bookId) {
-        // Endast ADMIN kan göra detta
-    }*/
+    @PostMapping
+    public ResponseEntity<LoanResDTO> borrowBookForUser(@Valid @RequestBody LoanReqBody loanReqBody) {
+        return ResponseEntity.ok(service.borrowBookForUser(loanReqBody.getUserId(), loanReqBody.getBookId()
+        ));
+    }
 
-    // Returnera en bok
-    /*@PutMapping("/{loanId}/return")
-    public ResponseEntity<LoanResDTO> returnBook(@PathVariable Long loanId) {
-        // Sätt returnDate till idag
-    }*/
+    @PutMapping("/{bookId}/return")
+    public ResponseEntity<LoanResDTO> returnBook(@PathVariable Long bookId) {
+        return ResponseEntity.ok(service.returnBook(bookId));
+    }
 }

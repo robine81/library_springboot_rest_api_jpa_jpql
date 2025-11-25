@@ -13,6 +13,7 @@ public interface LoanRepoJpa extends JpaRepository<Loan, Long> {
     List<Loan> findByUser_UserName(String userName);
     List<Loan> findByBook_BookId(Long bookId);
     List<Loan> findByUser_UserIdAndReturnDateIsNull(Long userId);
+    List<Loan> findByReturnDateIsNull();
     Optional<Loan> findByLoanIdAndUser_UserId(Long loanId, Long userId);
     @Query("SELECT l FROM Loan l WHERE l.returnDate IS NULL")
     List<Loan> findAllActiveLoans();
